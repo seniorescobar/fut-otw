@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"fut-upgrades/futbin"
-	"fut-upgrades/sofascore"
+	"fut-otw/futbin"
+	"fut-otw/sofascore"
 	"log"
 )
 
