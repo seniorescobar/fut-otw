@@ -89,7 +89,7 @@ func filterRatings(jsonObj JsonObj) ([]float64, error) {
 
 			r, err := strconv.ParseFloat(e.PlayerMatchInfo.Rating, 64)
 			if err != nil {
-				return nil, err
+				continue
 			}
 
 			ratings = append(ratings, r)

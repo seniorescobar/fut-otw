@@ -46,12 +46,14 @@ func main() {
 
 		price, err := futbin.GetPrice(p.OtwId)
 		if err != nil {
-			log.Fatalln(err)
+			log.Println(err)
+			continue
 		}
 
 		ratings, err := sofascore.GetRatings(p.SofascoreId)
 		if err != nil {
-			log.Fatalln(err)
+			log.Println(err)
+			continue
 		}
 
 		fmt.Println(link, price, ratings)
