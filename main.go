@@ -5,6 +5,7 @@ import (
 	"fut-otw/futbin"
 	"fut-otw/sofascore"
 	"log"
+	"sync"
 )
 
 type Player struct {
@@ -40,24 +41,54 @@ var Players = [...]Player{
 	Player{"211591", "50543239", "318653"},
 }
 
+const (
+	threshold = 8
+)
+
 func main() {
+	var wg sync.WaitGroup
+
 	for _, p := range Players {
-		link := generateLink(p.BaseId, p.OtwId)
-
-		price, err := futbin.GetPrice(p.OtwId)
-		if err != nil {
-			log.Println(err)
-			continue
-		}
-
-		ratings, err := sofascore.GetRatings(p.SofascoreId)
-		if err != nil {
-			log.Println(err)
-			continue
-		}
-
-		fmt.Println(link, price, ratings)
+		wg.Add(1)
+		go checkIfPotentialTotwPlayer(p, &wg)
 	}
+
+	wg.Wait()
+}
+
+func checkIfPotentialTotwPlayer(p Player, wg *sync.WaitGroup) {
+	defer wg.Done()
+
+	ratings, err := sofascore.GetRatings(p.SofascoreId)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	noGoodRatings := true
+	for _, r := range ratings {
+		if r >= threshold {
+			noGoodRatings = false
+		}
+	}
+
+	if noGoodRatings {
+		return
+	}
+
+	price, err := futbin.GetPrice(p.OtwId)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	link := generateLink(p.BaseId, p.OtwId)
+
+	// if err := twitter.Tweet(ratings, price, link); err != nil {
+	// 	return
+	// }
+
+	fmt.Println(link, price, ratings)
 }
 
 func generateLink(baseId, otwId string) string {
